@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.json">
+<title>מערכת שעות - גיא</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.greeting { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 4px; }
+.day-name { font-size: 1.1rem; color: #666; text-align: center; margin-bottom: 20px; }
+.date { font-size: 0.85rem; color: #999; text-align: center; margin-bottom: 20px; }
+.lesson {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 14px;
+  margin-bottom: 8px;
+  transition: transform 0.1s;
+}
+.lesson:active { transform: scale(0.98); }
+.lesson-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem; color: #fff;
+  margin-left: 12px; flex-shrink: 0;
+}
+.lesson-info { flex: 1; }
+.lesson-subject { font-weight: 600; font-size: 1rem; }
+.lesson-time { font-size: 0.8rem; color: #666; margin-top: 2px; }
+.equipment-section {
+  margin-top: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 16px;
+}
+.equipment-title { font-weight: 700; font-size: 1rem; margin-bottom: 10px; }
+.equipment-item { padding: 4px 0; font-size: 0.9rem; }
+.no-school {
+  text-align: center;
+  padding: 60px 20px;
+}
+.no-school-emoji { font-size: 4rem; margin-bottom: 16px; }
+.no-school-text { font-size: 1.3rem; font-weight: 600; color: #333; }
+.holiday-name { font-size: 1rem; color: #666; margin-top: 8px; }
+.closing { text-align: center; margin-top: 20px; font-size: 1.1rem; font-weight: 600; color: #764ba2; }
+
+/* Lesson colors by index */
+.lesson:nth-child(1) { background: #eef2ff; } .lesson:nth-child(1) .lesson-num { background: #667eea; }
+.lesson:nth-child(2) { background: #f0fdf4; } .lesson:nth-child(2) .lesson-num { background: #22c55e; }
+.lesson:nth-child(3) { background: #fefce8; } .lesson:nth-child(3) .lesson-num { background: #eab308; }
+.lesson:nth-child(4) { background: #fff7ed; } .lesson:nth-child(4) .lesson-num { background: #f97316; }
+.lesson:nth-child(5) { background: #fdf2f8; } .lesson:nth-child(5) .lesson-num { background: #ec4899; }
+.lesson:nth-child(6) { background: #f5f3ff; } .lesson:nth-child(6) .lesson-num { background: #8b5cf6; }
+</style>
+</head>
+<body>
+<div class="card" id="app"></div>
+<script>
+const schedule = {
+  0: { name: 'יום ראשון', emoji: '🔵', lessons: [
+    { time: '08:00', subject: 'שפה', equipment: null },
+    { time: '08:45', subject: 'שפה', equipment: null },
+    { time: '09:30', subject: 'שבילי ישראל', equipment: '📓 מחברת' },
+    { time: '10:30', subject: 'מתמטיקה', equipment: null },
+    { time: '11:15', subject: 'מדעים', equipment: '📓 מחברת + 📖 חוברת' },
+    { time: '12:00', subject: 'מדעים', equipment: '📓 מחברת + 📖 חוברת' },
+  ]},
+  1: { name: 'יום שני', emoji: '🟢', lessons: [
+    { time: '08:00', subject: 'חנ"ג', equipment: '💧 מים' },
+    { time: '08:45', subject: 'אנגלית', equipment: '📖 2 חוברות + 📓 מחברת' },
+    { time: '09:30', subject: 'אנגלית', equipment: '📖 2 חוברות + 📓 מחברת' },
+    { time: '10:30', subject: 'מתמטיקה', equipment: null },
+    { time: '11:15', subject: 'שפה', equipment: null },
+    { time: '12:00', subject: 'שפה', equipment: null },
+  ]},
+  2: { name: 'יום שלישי', emoji: '🟡', lessons: [
+    { time: '08:00', subject: 'תיאטרון', equipment: null },
+    { time: '08:45', subject: 'תיאטרון', equipment: null },
+    { time: '09:30', subject: 'מורשת ישראל', equipment: '📓 מחברת ורודה + 📖 חוברת' },
+    { time: '10:30', subject: 'מתמטיקה', equipment: null },
+    { time: '11:15', subject: 'מורשת ישראל', equipment: '📓 מחברת ורודה + 📖 חוברת' },
+    { time: '12:00', subject: 'שפה', equipment: null },
+  ]},
+  3: { name: 'יום רביעי', emoji: '🟠', lessons: [
+    { time: '08:00', subject: 'מתמטיקה', equipment: null },
+    { time: '08:45', subject: 'מתמטיקה', equipment: null },
+    { time: '09:30', subject: 'אנגלית', equipment: '📖 2 חוברות + 📓 מחברת' },
+    { time: '10:30', subject: 'אנגלית', equipment: '📖 2 חוברות + 📓 מחברת' },
+    { time: '11:15', subject: 'תנ"ך', equipment: '📓 מחברת + 📕 ספר תנ"ך' },
+  ]},
+  4: { name: 'יום חמישי', emoji: '🔴', lessons: [
+    { time: '08:00', subject: 'כישורי חיים', equipment: null },
+    { time: '08:45', subject: 'חנ"ג', equipment: '💧 מים' },
+    { time: '09:30', subject: 'גאומטריה', equipment: '📖 חוברת אביזרים + 📖 חוברת + 📓 מחברת' },
+    { time: '10:30', subject: 'היסטוריה', equipment: '📓 מחברת + 📖 חוברת' },
+    { time: '11:15', subject: 'תנ"ך', equipment: '📓 מחברת + 📕 ספר תנ"ך' },
+    { time: '12:00', subject: 'מדעים', equipment: '📓 מחברת + 📖 חוברת' },
+  ]},
+  5: { name: 'יום שישי', emoji: '🟣', lessons: [
+    { time: '08:00', subject: 'העשרה', equipment: null },
+    { time: '08:45', subject: 'אנגלית', equipment: '📖 2 חוברות + 📓 מחברת' },
+    { time: '09:30', subject: 'שפה', equipment: null },
+    { time: '10:30', subject: 'מפתח הלב', equipment: null },
+  ]},
+};
+
+const holidays = {"holidays":[{"date":"2026-03-03","name":"פורים"},{"date":"2026-03-04","name":"שושן פורים"},{"date":"2026-04-02","name":"פסח"},{"date":"2026-04-03","name":"פסח"},{"date":"2026-04-04","name":"חול המועד פסח"},{"date":"2026-04-05","name":"חול המועד פסח"},{"date":"2026-04-06","name":"חול המועד פסח"},{"date":"2026-04-07","name":"חול המועד פסח"},{"date":"2026-04-08","name":"שביעי של פסח"},{"date":"2026-04-22","name":"יום הזיכרון"},{"date":"2026-04-23","name":"יום העצמאות"},{"date":"2026-05-22","name":"שבועות"},{"date":"2026-09-22","name":"ראש השנה"},{"date":"2026-09-23","name":"ראש השנה"},{"date":"2026-10-01","name":"יום כיפור"},{"date":"2026-10-06","name":"סוכות"},{"date":"2026-10-07","name":"חול המועד סוכות"},{"date":"2026-10-08","name":"חול המועד סוכות"},{"date":"2026-10-09","name":"חול המועד סוכות"},{"date":"2026-10-10","name":"חול המועד סוכות"},{"date":"2026-10-12","name":"שמחת תורה"},{"date":"2026-10-13","name":"שמחת תורה"}],"vacations":[{"from":"2026-04-02","to":"2026-04-09","name":"חופשת פסח"},{"from":"2026-07-01","to":"2026-08-31","name":"חופשת קיץ"},{"from":"2026-10-06","to":"2026-10-13","name":"חופשת סוכות"}]};
+
+const greetings = ['בוקר טוב גיא! ☀️','יאללה גיא, בוקר טוב! 💪','בוקר אור! 🌅','קום קום, יום חדש! ⚡','בוקר טוב אלוף! 🏆','יום מעולה מתחיל! 🚀'];
+const closings = ['יום מעולה! 💪','בהצלחה היום! ⭐','תהרוס את היום! 🔥','יאללה, קדימה! 🚀','תעשה יום טוב! 😎'];
+
+function render() {
+  const app = document.getElementById('app');
+  const now = new Date();
+  const dayIndex = now.getDay();
+  const today = now.toISOString().slice(0, 10);
+  const dateStr = now.toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  // Check Saturday
+  if (dayIndex === 6) {
+    app.innerHTML = `<div class="no-school"><div class="no-school-emoji">🎉</div><div class="no-school-text">שבת שלום!</div><div class="holiday-name">אין לימודים היום</div></div>`;
+    return;
+  }
+
+  // Check holidays
+  const holiday = holidays.holidays.find(h => h.date === today);
+  if (holiday) {
+    app.innerHTML = `<div class="no-school"><div class="no-school-emoji">🏖️</div><div class="no-school-text">${holiday.name}</div><div class="holiday-name">אין לימודים היום! 🎉</div></div>`;
+    return;
+  }
+  const vacation = holidays.vacations.find(v => today >= v.from && today <= v.to);
+  if (vacation) {
+    app.innerHTML = `<div class="no-school"><div class="no-school-emoji">🏖️</div><div class="no-school-text">${vacation.name}</div><div class="holiday-name">אין לימודים! 🎉</div></div>`;
+    return;
+  }
+
+  const day = schedule[dayIndex];
+  const seed = now.getFullYear() * 1000 + now.getMonth() * 31 + now.getDate();
+  const greeting = greetings[seed % greetings.length];
+  const closing = closings[seed % closings.length];
+
+  const equipmentSet = new Set();
+  day.lessons.forEach(l => { if (l.equipment) equipmentSet.add(l.equipment); });
+
+  let lessonsHTML = day.lessons.map((l, i) => `
+    <div class="lesson">
+      <div class="lesson-num">${i + 1}</div>
+      <div class="lesson-info">
+        <div class="lesson-subject">${l.subject}</div>
+        <div class="lesson-time">${l.time}</div>
+      </div>
+    </div>
+  `).join('');
+
+  let equipHTML = '';
+  if (equipmentSet.size > 0) {
+    equipHTML = `<div class="equipment-section">
+      <div class="equipment-title">🎒 מה לקחת היום:</div>
+      ${[...equipmentSet].map(e => `<div class="equipment-item">✅ ${e}</div>`).join('')}
+    </div>`;
+  }
+
+  app.innerHTML = `
+    <div class="greeting">${greeting}</div>
+    <div class="day-name">${day.emoji} ${day.name}</div>
+    <div class="date">${dateStr}</div>
+    ${lessonsHTML}
+    ${equipHTML}
+    <div class="closing">${closing}</div>
+  `;
+}
+
+render();
+</script>
+</body>
+</html>

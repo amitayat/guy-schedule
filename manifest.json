@@ -1,0 +1,11 @@
+{
+  "name": "מערכת שעות - גיא",
+  "short_name": "מערכת",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
