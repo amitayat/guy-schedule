@@ -783,15 +783,15 @@ async function openHomeworkModal() {
   const allHw = await fetchHomework();
   const undone = getUndoneHomework(allHw);
 
-  // Sort by date descending (newest first)
-  undone.sort((a, b) => b.date.localeCompare(a.date));
+  // Sort by date ascending (oldest first - do those first!)
+  undone.sort((a, b) => a.date.localeCompare(b.date));
 
   let listHTML = '';
   if (undone.length === 0) {
     listHTML = '<div class="hw-empty">🎉 אין שיעורי בית! הכל נעשה</div>';
   } else {
     listHTML = undone.map((item, i) => {
-      const dateFormatted = new Date(item.date + 'T00:00:00').toLocaleDateString('he-IL', { day: 'numeric', month: 'short', weekday: 'short' });
+      const dateFormatted = new Date(item.date + 'T00:00:00').toLocaleDateString('he-IL', { day: 'numeric', month: 'short', year: 'numeric', weekday: 'short' });
       return `
         <div class="hw-item" id="hw-item-${i}">
           <button class="hw-check" onclick="completeHomework(${i})" title="סיימתי!">✓</button>
