@@ -64,7 +64,7 @@ body {
 /* Player of the day */
 .player-card {
   background: linear-gradient(135deg, var(--maccabi-yellow), #FFC000);
-  margin: 0 16px 24px;
+  margin: -12px 16px 12px;
   border-radius: 16px;
   padding: 12px 16px;
   display: flex;
@@ -531,14 +531,6 @@ function render() {
       <div class="hero-date">${dateStr}</div>
     </div>
 
-    ${gameHTML}
-
-    <div class="schedule-card" style="--player-bg: url(${player.img})">
-      <div class="schedule-title">📋 מערכת השעות</div>
-      ${lessonsHTML}
-      ${equipHTML}
-    </div>
-
     <div class="player-card">
       <div class="player-img"><img src="${player.img}" alt="${player.name}"></div>
       <div class="player-info">
@@ -546,6 +538,14 @@ function render() {
         <div class="player-quote">"${player.quote}"</div>
       </div>
       <div class="player-number">${player.number}</div>
+    </div>
+
+    ${gameHTML}
+
+    <div class="schedule-card" style="--player-bg: url(${player.img})">
+      <div class="schedule-title">📋 מערכת השעות</div>
+      ${lessonsHTML}
+      ${equipHTML}
     </div>
   `;
 }
