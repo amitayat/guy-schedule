@@ -16,6 +16,7 @@
   --maccabi-dark: #00275e;
   --maccabi-light: #FFF8DC;
 }
+.hero #hero::before, .hero::before { background-image: var(--player-bg) !important; }
 body {
   font-family: 'Heebo', -apple-system, sans-serif;
   background: var(--maccabi-blue);
@@ -37,13 +38,15 @@ body {
   overflow: hidden;
 }
 .hero::before {
-  content: '🏀';
+  content: '';
   position: absolute;
-  font-size: 120px;
-  opacity: 0.07;
-  top: -20px;
-  left: -20px;
+  inset: 0;
+  background-size: 200px;
+  background-position: left center;
+  background-repeat: no-repeat;
+  opacity: 0.15;
 }
+.hero[data-player] { position: relative; }
 .hero::after {
   content: '⭐';
   position: absolute;
@@ -70,7 +73,8 @@ body {
   position: relative;
   z-index: 2;
 }
-.player-emoji { font-size: 2.2rem; }
+.player-img { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; border: 3px solid var(--maccabi-dark); flex-shrink: 0; }
+.player-img img { width: 100%; height: 100%; object-fit: cover; }
 .player-info { flex: 1; }
 .player-name { font-weight: 900; font-size: 1rem; color: var(--maccabi-dark); }
 .player-quote { font-size: 0.8rem; color: var(--maccabi-blue); font-weight: 600; margin-top: 2px; }
@@ -222,12 +226,12 @@ const holidays = {"holidays":[{"date":"2026-03-03","name":"פורים"},{"date":
 
 // Maccabi players - different one each day
 const players = [
-  { name: 'ג\'ון דיבארטולומאו', number: '#12', emoji: '🫡', quote: 'הקפטן אומר: תן הכל היום!' },
-  { name: 'לורנזו בראון', number: '#14', emoji: '⚡', quote: 'מהירות בכל דבר - גם בלימודים!' },
-  { name: 'סאבן לי', number: '#0', emoji: '💪', quote: 'אין עצירות - קדימה לעוד יום!' },
-  { name: 'עודד קטש', number: '🎯', emoji: '🧠', quote: 'מאמן אומר: תכנון = ניצחון!' },
-  { name: 'ג\'יילן הורד', number: '#5', emoji: '🔥', quote: 'תהרוס את היום כמו סל שלוש!' },
-  { name: 'ווילי הנרי', number: '#9', emoji: '🛡️', quote: 'הגנה חזקה גם בבית ספר!' },
+  { name: 'ג׳ון דיברתולומיאו', number: '#12', img: 'players/sun-dibartolomeo.jpg', quote: 'הקפטן אומר: תן הכל היום!' },
+  { name: 'ג׳יילן הורד', number: '#1', img: 'players/mon-hoard.jpg', quote: 'מהירות בכל דבר - גם בלימודים!' },
+  { name: 'לוני ווקר', number: '#8', img: 'players/tue-walker.jpg', quote: 'אין עצירות - קדימה לעוד יום!' },
+  { name: 'תמיר בלאט', number: '#45', img: 'players/wed-blatt.jpg', quote: 'ילד של מאמן אומר: תכנון = ניצחון!' },
+  { name: 'אושיי בריסט', number: '#10', img: 'players/thu-brissett.jpg', quote: 'תהרוס את היום כמו סל שלוש!' },
+  { name: 'טי.ג׳יי ליף', number: '#22', img: 'players/fri-leaf.jpg', quote: 'הגנה חזקה גם בבית ספר!' },
 ];
 
 const greetings = ['בוקר טוב גיא! ☀️','יאללה צהוב, בוקר טוב! 💛','בוקר אור! 🏀','קום קום, Game Day! ⚡','בוקר טוב אלוף! 🏆','יום מעולה מתחיל! 💛💙'];
@@ -365,7 +369,7 @@ function render() {
   }
 
   app.innerHTML = `
-    <div class="hero">
+    <div class="hero" id="hero" style="--player-bg: url(${player.img})">
       <div class="hero-logo">💛🏀💙</div>
       <div class="hero-greeting">${greeting}</div>
       <div class="hero-day">${day.emoji} ${day.name}</div>
@@ -373,7 +377,7 @@ function render() {
     </div>
 
     <div class="player-card">
-      <div class="player-emoji">${player.emoji}</div>
+      <div class="player-img"><img src="${player.img}" alt="${player.name}"></div>
       <div class="player-info">
         <div class="player-name">${player.name}</div>
         <div class="player-quote">"${player.quote}"</div>
