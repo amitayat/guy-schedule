@@ -1,15 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <circle cx="100" cy="100" r="95" fill="#003DA5" stroke="#FFD700" stroke-width="5"/>
-  <circle cx="100" cy="100" r="75" fill="none" stroke="#FFD700" stroke-width="2"/>
-  <!-- Star of David -->
-  <polygon points="100,30 130,80 160,80 140,110 150,160 100,135 50,160 60,110 40,80 70,80" fill="none" stroke="#FFD700" stroke-width="3"/>
-  <polygon points="100,170 70,120 40,120 60,90 50,40 100,65 150,40 140,90 160,120 130,120" fill="none" stroke="#FFD700" stroke-width="3"/>
-  <!-- Basketball lines -->
-  <circle cx="100" cy="100" r="30" fill="#FFD700" stroke="#003DA5" stroke-width="2"/>
-  <path d="M70,100 L130,100" stroke="#003DA5" stroke-width="2"/>
-  <path d="M100,70 L100,130" stroke="#003DA5" stroke-width="2"/>
-  <path d="M78,78 Q100,95 122,78" fill="none" stroke="#003DA5" stroke-width="1.5"/>
-  <path d="M78,122 Q100,105 122,122" fill="none" stroke="#003DA5" stroke-width="1.5"/>
-  <!-- Text -->
-  <text x="100" y="188" text-anchor="middle" font-family="Arial" font-weight="bold" font-size="14" fill="#FFD700">MACCABI</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+  <!-- Outer circle -->
+  <circle cx="150" cy="150" r="140" fill="#003DA5" stroke="#FFD700" stroke-width="8"/>
+  <circle cx="150" cy="150" r="125" fill="none" stroke="#FFD700" stroke-width="3"/>
+  
+  <!-- Star of David - two overlapping triangles -->
+  <polygon points="150,35 220,150 80,150" fill="none" stroke="#FFD700" stroke-width="6" stroke-linejoin="round"/>
+  <polygon points="150,265 80,150 220,150" fill="none" stroke="#FFD700" stroke-width="6" stroke-linejoin="round"/>
+  
+  <!-- Inner star detail lines -->
+  <polygon points="150,60 205,140 95,140" fill="none" stroke="#FFD700" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="150,240 95,160 205,160" fill="none" stroke="#FFD700" stroke-width="3" stroke-linejoin="round"/>
+  
+  <!-- Basketball in center -->
+  <circle cx="150" cy="150" r="42" fill="#FFD700" stroke="#003DA5" stroke-width="3"/>
+  <!-- Basketball seam lines -->
+  <line x1="108" y1="150" x2="192" y2="150" stroke="#003DA5" stroke-width="2.5"/>
+  <line x1="150" y1="108" x2="150" y2="192" stroke="#003DA5" stroke-width="2.5"/>
+  <path d="M118,118 Q150,143 182,118" fill="none" stroke="#003DA5" stroke-width="2"/>
+  <path d="M118,182 Q150,157 182,182" fill="none" stroke="#003DA5" stroke-width="2"/>
+  <path d="M118,118 Q143,150 118,182" fill="none" stroke="#003DA5" stroke-width="2"/>
+  <path d="M182,118 Q157,150 182,182" fill="none" stroke="#003DA5" stroke-width="2"/>
+  
+  <!-- MACCABI text at bottom -->
+  <text x="150" y="285" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-weight="900" font-size="22" fill="#FFD700" letter-spacing="4">MACCABI</text>
+  
+  <!-- Stars (6 championships) -->
+  <text x="150" y="24" text-anchor="middle" font-size="16" fill="#FFD700">★ ★ ★ ★ ★ ★</text>
 </svg>
