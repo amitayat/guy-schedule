@@ -65,13 +65,13 @@ body {
 .holiday-name { font-size: 1rem; color: #666; margin-top: 8px; }
 .closing { text-align: center; margin-top: 20px; font-size: 1.1rem; font-weight: 600; color: #764ba2; }
 
-/* Lesson colors by index */
-.lesson:nth-child(1) { background: #eef2ff; } .lesson:nth-child(1) .lesson-num { background: #667eea; }
-.lesson:nth-child(2) { background: #f0fdf4; } .lesson:nth-child(2) .lesson-num { background: #22c55e; }
-.lesson:nth-child(3) { background: #fefce8; } .lesson:nth-child(3) .lesson-num { background: #eab308; }
-.lesson:nth-child(4) { background: #fff7ed; } .lesson:nth-child(4) .lesson-num { background: #f97316; }
-.lesson:nth-child(5) { background: #fdf2f8; } .lesson:nth-child(5) .lesson-num { background: #ec4899; }
-.lesson:nth-child(6) { background: #f5f3ff; } .lesson:nth-child(6) .lesson-num { background: #8b5cf6; }
+/* Lesson colors by data-index */
+.lesson[data-i="0"] { background: #eef2ff; } .lesson[data-i="0"] .lesson-num { background: #667eea; }
+.lesson[data-i="1"] { background: #f0fdf4; } .lesson[data-i="1"] .lesson-num { background: #22c55e; }
+.lesson[data-i="2"] { background: #fefce8; } .lesson[data-i="2"] .lesson-num { background: #eab308; }
+.lesson[data-i="3"] { background: #fff7ed; } .lesson[data-i="3"] .lesson-num { background: #f97316; }
+.lesson[data-i="4"] { background: #fdf2f8; } .lesson[data-i="4"] .lesson-num { background: #ec4899; }
+.lesson[data-i="5"] { background: #f5f3ff; } .lesson[data-i="5"] .lesson-num { background: #8b5cf6; }
 </style>
 </head>
 <body>
@@ -164,7 +164,7 @@ function render() {
   day.lessons.forEach(l => { if (l.equipment) equipmentSet.add(l.equipment); });
 
   let lessonsHTML = day.lessons.map((l, i) => `
-    <div class="lesson">
+    <div class="lesson" data-i="${i}">
       <div class="lesson-num">${i + 1}</div>
       <div class="lesson-info">
         <div class="lesson-subject">${l.subject}</div>
