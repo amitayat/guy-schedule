@@ -57,8 +57,8 @@ body {
 }
 .hero-logo { font-size: 2.8rem; margin-bottom: 4px; }
 .hero-greeting { color: var(--maccabi-yellow); font-size: 1.4rem; font-weight: 700; }
-.hero-day { color: #fff; font-size: 1.1rem; margin-top: 4px; }
-.hero-date { color: rgba(255,255,255,0.6); font-size: 0.85rem; margin-top: 4px; }
+.hero-day { color: var(--maccabi-yellow); font-size: 1.6rem; font-weight: 900; margin-top: 6px; text-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+.hero-date { color: #fff; font-size: 1.1rem; font-weight: 600; margin-top: 6px; }
 
 /* Player of the day */
 .player-card {
@@ -99,20 +99,34 @@ body {
 
 /* Schedule card */
 .schedule-card {
-  background: #fff;
+  background: var(--maccabi-dark);
   margin: 0 16px 16px;
   border-radius: 20px;
   padding: 20px 16px;
   box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.schedule-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  background-image: var(--player-bg);
+  opacity: 0.12;
+  pointer-events: none;
 }
 .schedule-title {
   font-weight: 700;
   font-size: 1rem;
-  color: var(--maccabi-dark);
+  color: var(--maccabi-yellow);
   margin-bottom: 14px;
   display: flex;
   align-items: center;
   gap: 8px;
+  position: relative;
 }
 
 .lesson {
@@ -130,27 +144,29 @@ body {
   margin-left: 12px; flex-shrink: 0;
 }
 .lesson-info { flex: 1; }
-.lesson-subject { font-weight: 700; font-size: 0.95rem; color: #1a1a2e; }
-.lesson-time { font-size: 0.78rem; color: #888; margin-top: 1px; }
+.lesson { position: relative; }
+.lesson-subject { font-weight: 700; font-size: 0.95rem; color: #fff; }
+.lesson-time { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 1px; }
 
-/* Maccabi-themed lesson colors */
-.lesson[data-i="0"] { background: #FFF8DC; } .lesson[data-i="0"] .lesson-num { background: var(--maccabi-blue); }
-.lesson[data-i="1"] { background: #eef3ff; } .lesson[data-i="1"] .lesson-num { background: #2563eb; }
-.lesson[data-i="2"] { background: #FFF8DC; } .lesson[data-i="2"] .lesson-num { background: #b8860b; }
-.lesson[data-i="3"] { background: #eef3ff; } .lesson[data-i="3"] .lesson-num { background: var(--maccabi-blue); }
-.lesson[data-i="4"] { background: #FFF8DC; } .lesson[data-i="4"] .lesson-num { background: #2563eb; }
-.lesson[data-i="5"] { background: #eef3ff; } .lesson[data-i="5"] .lesson-num { background: #b8860b; }
+/* Maccabi-themed lesson colors - alternating yellow/blue glass */
+.lesson[data-i="0"] { background: rgba(255,215,0,0.2); } .lesson[data-i="0"] .lesson-num { background: var(--maccabi-yellow); color: var(--maccabi-dark); }
+.lesson[data-i="1"] { background: rgba(0,61,165,0.35); } .lesson[data-i="1"] .lesson-num { background: #4a90d9; }
+.lesson[data-i="2"] { background: rgba(255,215,0,0.2); } .lesson[data-i="2"] .lesson-num { background: var(--maccabi-yellow); color: var(--maccabi-dark); }
+.lesson[data-i="3"] { background: rgba(0,61,165,0.35); } .lesson[data-i="3"] .lesson-num { background: #4a90d9; }
+.lesson[data-i="4"] { background: rgba(255,215,0,0.2); } .lesson[data-i="4"] .lesson-num { background: var(--maccabi-yellow); color: var(--maccabi-dark); }
+.lesson[data-i="5"] { background: rgba(0,61,165,0.35); } .lesson[data-i="5"] .lesson-num { background: #4a90d9; }
 
 /* Equipment */
 .equipment-section {
   margin-top: 16px;
   padding: 14px;
-  background: linear-gradient(135deg, #FFF8DC, #fff3b8);
+  background: rgba(255,215,0,0.15);
   border-radius: 14px;
-  border: 2px solid var(--maccabi-yellow);
+  border: 2px solid rgba(255,215,0,0.3);
+  position: relative;
 }
-.equipment-title { font-weight: 800; font-size: 0.95rem; color: var(--maccabi-dark); margin-bottom: 8px; }
-.equipment-item { padding: 3px 0; font-size: 0.85rem; color: #333; }
+.equipment-title { font-weight: 800; font-size: 0.95rem; color: var(--maccabi-yellow); margin-bottom: 8px; }
+.equipment-item { padding: 3px 0; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
 
 /* Closing */
 .closing-banner {
@@ -387,7 +403,7 @@ function render() {
 
     ${gameHTML}
 
-    <div class="schedule-card">
+    <div class="schedule-card" style="--player-bg: url(${player.img})">
       <div class="schedule-title">📋 מערכת השעות</div>
       ${lessonsHTML}
       ${equipHTML}
