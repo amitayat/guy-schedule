@@ -264,6 +264,68 @@ body {
 }
 .notes-close:active { background: rgba(255,255,255,0.2); }
 
+/* Homework FAB */
+.hw-fab {
+  position: fixed; top: 16px; right: 68px; z-index: 100;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, #4a90d9, var(--maccabi-blue));
+  border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  font-size: 1.3rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s; color: #fff;
+}
+.hw-fab:active { transform: scale(0.9); }
+.hw-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: #ff4444; color: #fff; font-size: 0.65rem; font-weight: 800;
+  min-width: 18px; height: 18px; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 0 4px;
+}
+
+/* Homework overlay */
+.hw-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.hw-overlay.open { opacity: 1; pointer-events: auto; }
+.hw-modal {
+  background: var(--maccabi-dark); border-radius: 20px;
+  width: 100%; max-width: 380px; padding: 24px 20px 24px;
+  transform: scale(0.9); opacity: 0; transition: transform 0.25s ease-out, opacity 0.25s;
+  max-height: 85vh; overflow-y: auto;
+  border: 1px solid rgba(74,144,217,0.2);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+}
+.hw-overlay.open .hw-modal { transform: scale(1); opacity: 1; }
+.hw-modal-title { color: #4a90d9; font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; text-align: center; }
+.hw-empty { text-align: center; color: rgba(255,255,255,0.4); padding: 30px 0; font-size: 0.95rem; }
+
+.hw-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(255,255,255,0.05); border-radius: 12px;
+  padding: 12px; margin-bottom: 8px;
+  border-right: 3px solid rgba(74,144,217,0.5);
+  transition: opacity 0.3s;
+}
+.hw-item.completing { opacity: 0; transform: translateX(-20px); }
+.hw-check {
+  width: 24px; height: 24px; border-radius: 6px;
+  border: 2px solid rgba(74,144,217,0.4); background: none;
+  cursor: pointer; flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  color: transparent; font-size: 0.8rem; transition: all 0.2s;
+}
+.hw-check:active { background: rgba(74,144,217,0.3); color: #fff; }
+.hw-item-body { flex: 1; }
+.hw-item-subject { font-weight: 700; font-size: 0.8rem; color: #4a90d9; }
+.hw-item-text { color: rgba(255,255,255,0.85); font-size: 0.88rem; margin-top: 2px; line-height: 1.4; }
+.hw-item-date { color: rgba(255,255,255,0.3); font-size: 0.72rem; margin-top: 4px; }
+
 /* Today's notes reminder */
 .notes-reminder {
   margin-top: 16px; padding: 14px;
@@ -648,6 +710,144 @@ cleanOldNotes();
 
 initNotesUI();
 injectTodayNotes();
+
+// ===== Homework System =====
+const HW_DONE_KEY = 'guy-hw-done'; // Set of "date|subject|homework" keys marked done
+const HW_CACHE_KEY = 'guy-hw-cache';
+const HW_URL = 'homework.json';
+
+function getHwDone() {
+  try { return new Set(JSON.parse(localStorage.getItem(HW_DONE_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function saveHwDone(set) { localStorage.setItem(HW_DONE_KEY, JSON.stringify([...set])); }
+
+function hwKey(item) { return item.date + '|' + item.subject + '|' + item.homework; }
+
+async function fetchHomework() {
+  try {
+    const res = await fetch(HW_URL + '?t=' + Date.now());
+    if (!res.ok) return [];
+    const data = await res.json();
+    localStorage.setItem(HW_CACHE_KEY, JSON.stringify(data));
+    return data;
+  } catch {
+    // Fallback to cache
+    try { return JSON.parse(localStorage.getItem(HW_CACHE_KEY) || '[]'); }
+    catch { return []; }
+  }
+}
+
+function getUndoneHomework(allHw) {
+  const done = getHwDone();
+  return allHw.filter(item => !done.has(hwKey(item)));
+}
+
+function initHomeworkUI() {
+  // FAB
+  const fab = document.createElement('button');
+  fab.className = 'hw-fab';
+  fab.id = 'hw-fab';
+  fab.innerHTML = '📚';
+  fab.title = 'שיעורי בית';
+  fab.onclick = () => openHomeworkModal();
+  document.body.appendChild(fab);
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'hw-overlay';
+  overlay.id = 'hw-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) closeHomeworkModal(); };
+  document.body.appendChild(overlay);
+
+  // Load and show badge
+  updateHwBadge();
+}
+
+async function updateHwBadge() {
+  const allHw = await fetchHomework();
+  const undone = getUndoneHomework(allHw);
+  const fab = document.getElementById('hw-fab');
+  const existing = fab.querySelector('.hw-badge');
+  if (existing) existing.remove();
+  if (undone.length > 0) {
+    const badge = document.createElement('span');
+    badge.className = 'hw-badge';
+    badge.textContent = undone.length;
+    fab.appendChild(badge);
+  }
+}
+
+async function openHomeworkModal() {
+  const overlay = document.getElementById('hw-overlay');
+  const allHw = await fetchHomework();
+  const undone = getUndoneHomework(allHw);
+
+  // Sort by date descending (newest first)
+  undone.sort((a, b) => b.date.localeCompare(a.date));
+
+  let listHTML = '';
+  if (undone.length === 0) {
+    listHTML = '<div class="hw-empty">🎉 אין שיעורי בית! הכל נעשה</div>';
+  } else {
+    listHTML = undone.map((item, i) => {
+      const dateFormatted = new Date(item.date + 'T00:00:00').toLocaleDateString('he-IL', { day: 'numeric', month: 'short', weekday: 'short' });
+      return `
+        <div class="hw-item" id="hw-item-${i}">
+          <button class="hw-check" onclick="completeHomework(${i})" title="סיימתי!">✓</button>
+          <div class="hw-item-body">
+            <div class="hw-item-subject">${item.subject}</div>
+            <div class="hw-item-text">${item.homework}</div>
+            <div class="hw-item-date">${dateFormatted}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  overlay.innerHTML = `
+    <div class="hw-modal">
+      <button class="notes-close" onclick="closeHomeworkModal()">✕</button>
+      <div class="notes-modal-handle"></div>
+      <div class="hw-modal-title">📚 שיעורי בית (${undone.length})</div>
+      <div id="hw-list">${listHTML}</div>
+    </div>
+  `;
+  overlay.classList.add('open');
+
+  // Store current undone list for reference
+  window._hwUndone = undone;
+}
+
+function closeHomeworkModal() {
+  document.getElementById('hw-overlay').classList.remove('open');
+}
+
+window.completeHomework = function(idx) {
+  const item = window._hwUndone?.[idx];
+  if (!item) return;
+
+  // Animate out
+  const el = document.getElementById('hw-item-' + idx);
+  if (el) {
+    el.style.transition = 'opacity 0.3s, transform 0.3s';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-20px)';
+  }
+
+  // Mark done
+  const done = getHwDone();
+  done.add(hwKey(item));
+  saveHwDone(done);
+
+  // Refresh after animation
+  setTimeout(() => {
+    openHomeworkModal();
+    updateHwBadge();
+  }, 350);
+};
+
+initHomeworkUI();
 </script>
 </body>
 </html>
