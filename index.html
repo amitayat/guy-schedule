@@ -185,6 +185,79 @@ body {
 .no-school-emoji { font-size: 4rem; margin-bottom: 16px; }
 .no-school-text { font-size: 1.5rem; font-weight: 800; color: var(--maccabi-yellow); }
 .no-school-sub { font-size: 1rem; color: rgba(255,255,255,0.7); margin-top: 8px; }
+
+/* Notes FAB */
+.notes-fab {
+  position: fixed; bottom: 24px; left: 20px; z-index: 100;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--maccabi-yellow), #FFC000);
+  border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  font-size: 1.5rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+}
+.notes-fab:active { transform: scale(0.9); }
+
+/* Notes modal overlay */
+.notes-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s;
+}
+.notes-overlay.open { opacity: 1; pointer-events: auto; }
+.notes-modal {
+  background: var(--maccabi-dark); border-radius: 24px 24px 0 0;
+  width: 100%; max-width: 420px; padding: 24px 20px 32px;
+  transform: translateY(100%); transition: transform 0.3s ease-out;
+  max-height: 85vh; overflow-y: auto;
+}
+.notes-overlay.open .notes-modal { transform: translateY(0); }
+.notes-modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 16px; }
+.notes-modal-title { color: var(--maccabi-yellow); font-size: 1.1rem; font-weight: 800; margin-bottom: 16px; text-align: center; }
+
+.notes-form-group { margin-bottom: 14px; }
+.notes-label { color: rgba(255,255,255,0.7); font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; display: block; }
+.notes-input, .notes-textarea {
+  width: 100%; border: 2px solid rgba(255,215,0,0.2); border-radius: 12px;
+  background: rgba(255,255,255,0.08); color: #fff; font-family: 'Heebo', sans-serif;
+  font-size: 0.95rem; padding: 10px 14px; outline: none; transition: border-color 0.2s;
+}
+.notes-input:focus, .notes-textarea:focus { border-color: var(--maccabi-yellow); }
+.notes-textarea { min-height: 70px; resize: vertical; }
+.notes-btn {
+  width: 100%; padding: 12px; border: none; border-radius: 12px; cursor: pointer;
+  font-family: 'Heebo', sans-serif; font-weight: 800; font-size: 1rem;
+  background: linear-gradient(135deg, var(--maccabi-yellow), #FFC000);
+  color: var(--maccabi-dark); margin-top: 4px; transition: opacity 0.2s;
+}
+.notes-btn:active { opacity: 0.8; }
+.notes-btn-secondary { background: rgba(255,255,255,0.1); color: #fff; font-weight: 600; margin-top: 8px; }
+
+/* Saved notes list in modal */
+.notes-list { margin-top: 16px; }
+.notes-list-title { color: rgba(255,255,255,0.5); font-size: 0.75rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 8px; }
+.note-item {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.06); border-radius: 10px;
+  padding: 10px 12px; margin-bottom: 6px;
+}
+.note-item-date { color: var(--maccabi-yellow); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+.note-item-text { flex: 1; color: #fff; font-size: 0.85rem; }
+.note-item-del {
+  background: none; border: none; color: rgba(255,100,100,0.7); font-size: 1.1rem; cursor: pointer;
+  padding: 4px; transition: color 0.2s;
+}
+.note-item-del:hover { color: #ff4444; }
+
+/* Today's notes reminder */
+.notes-reminder {
+  margin-top: 16px; padding: 14px;
+  background: rgba(255,100,50,0.2); border-radius: 14px;
+  border: 2px solid rgba(255,100,50,0.4); position: relative;
+}
+.notes-reminder-title { font-weight: 800; font-size: 0.95rem; color: #ff9944; margin-bottom: 8px; }
+.notes-reminder-item { padding: 3px 0; font-size: 0.85rem; color: rgba(255,255,255,0.9); }
 </style>
 </head>
 <body>
@@ -414,6 +487,152 @@ function render() {
 }
 
 render();
+
+// ===== Notes System =====
+const NOTES_KEY = 'guy-schedule-notes';
+
+function getNotes() {
+  try { return JSON.parse(localStorage.getItem(NOTES_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveNotes(notes) { localStorage.setItem(NOTES_KEY, JSON.stringify(notes)); }
+function getNotesForDate(dateStr) { return getNotes().filter(n => n.date === dateStr); }
+
+function formatDateHe(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString('he-IL', { day: 'numeric', month: 'short' });
+}
+
+// Inject FAB + overlay into DOM
+function initNotesUI() {
+  // FAB button
+  const fab = document.createElement('button');
+  fab.className = 'notes-fab';
+  fab.innerHTML = '📝';
+  fab.title = 'הוסף הערה';
+  fab.onclick = () => openNotesModal();
+  document.body.appendChild(fab);
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.className = 'notes-overlay';
+  overlay.id = 'notes-overlay';
+  overlay.onclick = (e) => { if (e.target === overlay) closeNotesModal(); };
+  document.body.appendChild(overlay);
+}
+
+function openNotesModal() {
+  const overlay = document.getElementById('notes-overlay');
+  const today = new Date().toISOString().slice(0, 10);
+  const notes = getNotes().filter(n => n.date >= today).sort((a,b) => a.date.localeCompare(b.date));
+
+  let listHTML = '';
+  if (notes.length > 0) {
+    listHTML = `<div class="notes-list">
+      <div class="notes-list-title">📌 הערות קרובות</div>
+      ${notes.map((n, i) => `
+        <div class="note-item">
+          <div class="note-item-date">${formatDateHe(n.date)}</div>
+          <div class="note-item-text">${n.text}</div>
+          <button class="note-item-del" onclick="deleteNote(${i}, '${today}')">✕</button>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+
+  overlay.innerHTML = `
+    <div class="notes-modal">
+      <div class="notes-modal-handle"></div>
+      <div class="notes-modal-title">📝 הוסף הערה ליום</div>
+      <div class="notes-form-group">
+        <label class="notes-label">📅 תאריך</label>
+        <input type="date" class="notes-input" id="note-date" value="${today}" min="${today}">
+      </div>
+      <div class="notes-form-group">
+        <label class="notes-label">✏️ הערה</label>
+        <textarea class="notes-textarea" id="note-text" placeholder="למשל: לבוא עם חולצה לבנה" dir="rtl"></textarea>
+      </div>
+      <button class="notes-btn" onclick="saveNote()">💾 שמור הערה</button>
+      ${listHTML}
+    </div>
+  `;
+  overlay.classList.add('open');
+}
+
+function closeNotesModal() {
+  document.getElementById('notes-overlay').classList.remove('open');
+}
+
+function saveNote() {
+  const dateEl = document.getElementById('note-date');
+  const textEl = document.getElementById('note-text');
+  const date = dateEl.value;
+  const text = textEl.value.trim();
+  if (!text) { textEl.focus(); return; }
+
+  const notes = getNotes();
+  notes.push({ date, text, created: Date.now() });
+  saveNotes(notes);
+
+  closeNotesModal();
+  render(); // re-render to show today's notes if applicable
+}
+
+window.deleteNote = function(filteredIdx, today) {
+  const allNotes = getNotes();
+  const futureNotes = allNotes.filter(n => n.date >= today).sort((a,b) => a.date.localeCompare(b.date));
+  const toDelete = futureNotes[filteredIdx];
+  if (!toDelete) return;
+
+  const actualIdx = allNotes.findIndex(n => n.date === toDelete.date && n.text === toDelete.text && n.created === toDelete.created);
+  if (actualIdx !== -1) {
+    allNotes.splice(actualIdx, 1);
+    saveNotes(allNotes);
+  }
+  openNotesModal(); // refresh modal
+  render();
+};
+
+// Patch render to include today's notes
+const _origRender = render;
+// We need to inject notes into the schedule card. Override via MutationObserver approach:
+function injectTodayNotes() {
+  const today = new Date().toISOString().slice(0, 10);
+  const todayNotes = getNotesForDate(today);
+  if (todayNotes.length === 0) return;
+
+  const scheduleCard = document.querySelector('.schedule-card');
+  if (!scheduleCard) return;
+
+  // Check if already injected
+  if (scheduleCard.querySelector('.notes-reminder')) return;
+
+  const reminderDiv = document.createElement('div');
+  reminderDiv.className = 'notes-reminder';
+  reminderDiv.innerHTML = `
+    <div class="notes-reminder-title">⚡ תזכורות להיום:</div>
+    ${todayNotes.map(n => `<div class="notes-reminder-item">📌 ${n.text}</div>`).join('')}
+  `;
+
+  // Insert before equipment or at end
+  const equip = scheduleCard.querySelector('.equipment-section');
+  if (equip) scheduleCard.insertBefore(reminderDiv, equip);
+  else scheduleCard.appendChild(reminderDiv);
+}
+
+// Re-wrap render
+const origRenderFn = render;
+window.render = function() { origRenderFn(); injectTodayNotes(); };
+// Also clean up old notes (past dates)
+function cleanOldNotes() {
+  const today = new Date().toISOString().slice(0, 10);
+  const notes = getNotes().filter(n => n.date >= today);
+  saveNotes(notes);
+}
+cleanOldNotes();
+
+initNotesUI();
+injectTodayNotes();
 </script>
 </body>
 </html>
