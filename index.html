@@ -16,7 +16,7 @@
   --maccabi-dark: #00275e;
   --maccabi-light: #FFF8DC;
 }
-.hero #hero::before, .hero::before { background-image: var(--player-bg) !important; }
+
 body {
   font-family: 'Heebo', -apple-system, sans-serif;
   background: var(--maccabi-blue);
@@ -41,10 +41,11 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-size: 200px;
-  background-position: left center;
+  background-image: url(maccabi-logo.svg);
+  background-size: 180px;
+  background-position: center center;
   background-repeat: no-repeat;
-  opacity: 0.15;
+  opacity: 0.08;
 }
 .hero[data-player] { position: relative; }
 .hero::after {
@@ -63,7 +64,7 @@ body {
 /* Player of the day */
 .player-card {
   background: linear-gradient(135deg, var(--maccabi-yellow), #FFC000);
-  margin: -12px 16px 0;
+  margin: 0 16px 24px;
   border-radius: 16px;
   padding: 12px 16px;
   display: flex;
@@ -83,7 +84,7 @@ body {
 /* Next game */
 .next-game {
   background: var(--maccabi-dark);
-  margin: 12px 16px;
+  margin: -8px 16px 12px;
   border-radius: 14px;
   padding: 14px 16px;
   display: flex;
@@ -168,17 +169,7 @@ body {
 .equipment-title { font-weight: 800; font-size: 0.95rem; color: var(--maccabi-yellow); margin-bottom: 8px; }
 .equipment-item { padding: 3px 0; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
 
-/* Closing */
-.closing-banner {
-  background: linear-gradient(135deg, var(--maccabi-yellow), #FFC000);
-  margin: 0 16px 24px;
-  border-radius: 14px;
-  padding: 14px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 1.1rem;
-  color: var(--maccabi-dark);
-}
+
 
 /* No school */
 .no-school { text-align: center; padding: 60px 20px; }
@@ -266,7 +257,7 @@ body {
 
 /* Homework FAB */
 .hw-fab {
-  position: fixed; top: 16px; right: 68px; z-index: 100;
+  position: fixed; top: 16px; left: 16px; z-index: 100;
   width: 44px; height: 44px; border-radius: 50%;
   background: linear-gradient(135deg, #4a90d9, var(--maccabi-blue));
   border: none; box-shadow: 0 4px 16px rgba(0,0,0,0.4);
@@ -400,7 +391,7 @@ const players = [
 ];
 
 const greetings = ['בוקר טוב גיא! ☀️','יאללה צהוב, בוקר טוב! 💛','בוקר אור! 🏀','קום קום, Game Day! ⚡','בוקר טוב אלוף! 🏆','יום מעולה מתחיל! 💛💙'];
-const closings = ['💛💙 יאללה מכבי, יאללה גיא!','תהרוס את היום! 🏀','Game Time! 🔥','קדימה צהוב! 💛','תעשה יום של אלוף! 🏆'];
+
 
 // Next games (update periodically)
 const nextGames = [
@@ -494,7 +485,6 @@ function render() {
   const day = schedule[dayIndex];
   const seed = now.getFullYear() * 1000 + now.getMonth() * 31 + now.getDate();
   const greeting = greetings[seed % greetings.length];
-  const closing = closings[seed % closings.length];
   const player = players[dayIndex % players.length];
 
   const equipmentSet = new Set();
@@ -534,20 +524,11 @@ function render() {
   }
 
   app.innerHTML = `
-    <div class="hero" id="hero" style="--player-bg: url(${player.img})">
+    <div class="hero" id="hero">
       <div class="hero-logo">💛🏀💙</div>
       <div class="hero-greeting">${greeting}</div>
       <div class="hero-day">${day.emoji} ${day.name}</div>
       <div class="hero-date">${dateStr}</div>
-    </div>
-
-    <div class="player-card">
-      <div class="player-img"><img src="${player.img}" alt="${player.name}"></div>
-      <div class="player-info">
-        <div class="player-name">${player.name}</div>
-        <div class="player-quote">"${player.quote}"</div>
-      </div>
-      <div class="player-number">${player.number}</div>
     </div>
 
     ${gameHTML}
@@ -558,7 +539,14 @@ function render() {
       ${equipHTML}
     </div>
 
-    <div class="closing-banner">${closing}</div>
+    <div class="player-card">
+      <div class="player-img"><img src="${player.img}" alt="${player.name}"></div>
+      <div class="player-info">
+        <div class="player-name">${player.name}</div>
+        <div class="player-quote">"${player.quote}"</div>
+      </div>
+      <div class="player-number">${player.number}</div>
+    </div>
   `;
 }
 
