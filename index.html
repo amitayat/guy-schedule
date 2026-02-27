@@ -235,11 +235,30 @@ const closings = ['💛💙 יאללה מכבי, יאללה גיא!','תהרוס
 
 // Next games (update periodically)
 const nextGames = [
-  { date: '2026-02-28', time: '20:05', opponent: 'אולימפיאקוס', comp: 'יורוליג' },
-  { date: '2026-03-04', time: '20:00', opponent: 'הפועל חולון', comp: 'ליגת העל' },
-  { date: '2026-03-07', time: '21:00', opponent: 'ריאל מדריד', comp: 'יורוליג' },
-  { date: '2026-03-11', time: '20:00', opponent: 'הפועל ירושלים', comp: 'ליגת העל' },
-  { date: '2026-03-14', time: '20:05', opponent: 'ברצלונה', comp: 'יורוליג' },
+  // Home games
+  { date: '2026-03-05', time: '21:05', opponent: 'הפועל ת"א', comp: 'ליגת העל', home: true },
+  { date: '2026-03-08', time: '20:55', opponent: 'הפועל גליל עליון', comp: 'יורוליג', home: true },
+  // Away
+  { date: '2026-03-13', time: '21:30', opponent: 'מילאנו', comp: 'יורוליג', home: false },
+  { date: '2026-03-15', time: '20:00', opponent: 'הפועל העמק', comp: 'ליגת העל', home: false },
+  // Away
+  { date: '2026-03-20', time: '21:00', opponent: 'וילרבאן', comp: 'יורוליג', home: false },
+  // Home
+  { date: '2026-03-22', time: '20:00', opponent: 'עירוני קרית אתא', comp: 'ליגת העל', home: true },
+  { date: '2026-03-24', time: '21:05', opponent: 'פנרבחצה', comp: 'יורוליג', home: true },
+  { date: '2026-03-26', time: '21:05', opponent: 'דובאי', comp: 'יורוליג', home: true },
+  { date: '2026-03-29', time: '20:00', opponent: 'הפועל תל אביב', comp: 'ליגת העל', home: true },
+  { date: '2026-04-01', time: '21:05', opponent: 'אנאדולו אפס', comp: 'יורוליג', home: true },
+  // Away
+  { date: '2026-04-03', time: '20:00', opponent: 'מכבי ראשון לציון', comp: 'ליגת העל', home: false },
+  { date: '2026-04-07', time: '21:30', opponent: 'באסקוניה ויטוריה', comp: 'יורוליג', home: false },
+  { date: '2026-04-09', time: '21:45', opponent: 'פריז', comp: 'יורוליג', home: false },
+  { date: '2026-04-12', time: '20:00', opponent: 'הפועל ירושלים', comp: 'ליגת העל', home: false },
+  // Home
+  { date: '2026-04-16', time: '21:05', opponent: 'וירטוס בולוניה', comp: 'יורוליג', home: true },
+  { date: '2026-04-19', time: '20:00', opponent: 'אליצור נתניה', comp: 'ליגת העל', home: true },
+  { date: '2026-04-23', time: '20:00', opponent: 'הפועל ב"ש', comp: 'ליגת העל', home: true },
+  { date: '2026-04-28', time: '20:00', opponent: 'בני הרצליה', comp: 'ליגת העל', home: true },
 ];
 
 function getNextGame() {
@@ -339,7 +358,7 @@ function render() {
       <div class="next-game-icon">🏀</div>
       <div class="next-game-info">
         <div class="next-game-label">המשחק הבא</div>
-        <div class="next-game-detail">מכבי ת"א vs ${nextGame.opponent}</div>
+        <div class="next-game-detail">${nextGame.home ? '🏠' : '✈️'} מכבי ת"א vs ${nextGame.opponent}</div>
         <div class="next-game-countdown">${nextGame.comp} | ${nextGame.time} | ${daysUntil(nextGame.date)}</div>
       </div>
     </div>`;
