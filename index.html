@@ -325,6 +325,62 @@ body {
 }
 .notes-reminder-title { font-weight: 800; font-size: 0.95rem; color: #ff9944; margin-bottom: 8px; }
 .notes-reminder-item { padding: 3px 0; font-size: 0.85rem; color: rgba(255,255,255,0.9); }
+
+/* Remote learning toggle */
+.remote-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 0 16px 12px; padding: 10px 16px;
+  background: rgba(255,255,255,0.08); border-radius: 14px;
+  position: relative; z-index: 2;
+}
+.remote-toggle-label {
+  color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600;
+}
+.remote-toggle-label.active { color: var(--maccabi-yellow); }
+.remote-switch {
+  position: relative; width: 48px; height: 26px;
+  background: rgba(255,255,255,0.15); border-radius: 13px;
+  cursor: pointer; transition: background 0.3s; border: none;
+  flex-shrink: 0;
+}
+.remote-switch.on { background: #ff6b35; }
+.remote-switch::after {
+  content: ''; position: absolute;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #fff; top: 2px; right: 2px;
+  transition: transform 0.3s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+.remote-switch.on::after { transform: translateX(-22px); }
+
+/* Remote banner */
+.remote-banner {
+  margin: 0 16px 12px; padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(255,107,53,0.3), rgba(255,60,60,0.2));
+  border: 1px solid rgba(255,107,53,0.4); border-radius: 12px;
+  text-align: center; position: relative; z-index: 2;
+}
+.remote-banner-text {
+  color: #ff9966; font-size: 0.85rem; font-weight: 700;
+}
+
+/* Remote lesson styling */
+.lesson-zoom-link {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: linear-gradient(135deg, #4285f4, #2563eb);
+  color: #fff; padding: 4px 10px; border-radius: 8px;
+  font-size: 0.75rem; font-weight: 700; text-decoration: none;
+  margin-top: 4px; transition: opacity 0.2s;
+}
+.lesson-zoom-link:active { opacity: 0.7; }
+.lesson-type-badge {
+  font-size: 0.7rem; font-weight: 700; padding: 2px 8px;
+  border-radius: 6px; margin-right: 6px; display: inline-block;
+}
+.lesson-type-badge.zoom { background: rgba(66,133,244,0.2); color: #4285f4; }
+.lesson-type-badge.async { background: rgba(255,180,0,0.2); color: #ffb400; }
+.lesson-note { font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 2px; font-style: italic; }
+
 </style>
 </head>
 <body>
@@ -436,6 +492,63 @@ function daysUntil(dateStr) {
   return `עוד ${diff} ימים`;
 }
 
+
+// ===== Remote Learning Mode =====
+const REMOTE_KEY = 'guy-remote-mode';
+
+const remoteSchedule = {
+  0: { name: 'יום ראשון', emoji: '🔵', lessons: [
+    { time: '09:30', subject: 'טל תלם', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '10:00', subject: 'שפה', type: 'zoom', link: 'https://meet.google.com/qjw-rmxc-mrp' },
+    { time: '11:00', subject: 'ספורט (שובל)', type: 'zoom', link: 'https://meet.google.com/wqf-fubw-bau' },
+    { time: '12:00', subject: 'טל תלם', type: 'zoom', link: 'https://meet.google.com/jnx-ssta-oos' },
+    { time: '13:00', subject: 'גאומטריה (טל איזנקוט)', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+  ]},
+  1: { name: 'יום שני', emoji: '🟢', lessons: [
+    { time: '09:30', subject: 'שובל', type: 'zoom', link: 'https://meet.google.com/wqf-fubw-bau' },
+    { time: '10:00', subject: 'אנגלית', type: 'zoom', link: 'https://meet.google.com/wmx-osjf-mee' },
+    { time: '11:00', subject: 'שפה', type: 'zoom', link: 'https://meet.google.com/qjw-rmxc-mrp' },
+    { time: '12:00', subject: 'אנגלית', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '13:00', subject: 'מתמטיקה (טל איזנקוט)', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+  ]},
+  2: { name: 'יום שלישי', emoji: '🟡', lessons: [
+    { time: '09:30', subject: 'שובל', type: 'zoom', link: 'https://meet.google.com/wqf-fubw-bau' },
+    { time: '10:00', subject: 'אנגלית', type: 'zoom', link: 'https://meet.google.com/wmx-osjf-mee' },
+    { time: '11:00', subject: 'שפה', type: 'zoom', link: 'https://meet.google.com/qjw-rmxc-mrp' },
+    { time: '12:00', subject: 'טל תלם', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '13:00', subject: 'מתמטיקה (טל איזנקוט)', type: 'zoom', link: 'https://meet.google.com/uii-dvfx-anh' },
+  ]},
+  3: { name: 'יום רביעי', emoji: '🟠', lessons: [
+    { time: '09:15', subject: 'יניב', type: 'zoom', link: 'https://meet.google.com/hac-hwhf-mfn', note: 'השיעור מתחיל בשעה 09:15' },
+    { time: '10:00', subject: 'טל אייזנקוט', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '11:00', subject: 'אנגלית (רוית)', type: 'zoom', link: 'https://meet.google.com/wmx-osjf-mee' },
+    { time: '12:00', subject: 'אנגלית', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '13:00', subject: 'מתמטיקה (טל איזנקוט)', type: 'zoom', link: 'https://meet.google.com/uii-dvfx-anh' },
+  ]},
+  4: { name: 'יום חמישי', emoji: '🔴', lessons: [
+    { time: '09:40', subject: 'שובל', type: 'zoom', link: 'https://meet.google.com/wqf-fubw-bau', note: 'השיעור מתחיל בשעה 09:40' },
+    { time: '10:00', subject: 'מיטל', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '11:00', subject: 'תהילה מויאל', type: 'async', link: null, note: 'משימה א-סינכרונית' },
+    { time: '12:00', subject: 'טל תלם', type: 'zoom', link: 'https://meet.google.com/jnx-ssta-oos' },
+    { time: '13:00', subject: 'מתמטיקה (טל איזנקוט)', type: 'zoom', link: 'https://meet.google.com/uii-dvfx-anh' },
+  ]},
+  5: { name: 'יום שישי', emoji: '🟣', lessons: [
+    { time: '09:30', subject: 'שובל', type: 'zoom', link: 'https://meet.google.com/wqf-fubw-bau' },
+  ]},
+};
+
+function isRemoteMode() {
+  return localStorage.getItem(REMOTE_KEY) === 'true';
+}
+
+function toggleRemoteMode() {
+  const current = isRemoteMode();
+  localStorage.setItem(REMOTE_KEY, (!current).toString());
+  render();
+  injectTodayNotes();
+  updateHwBadge();
+}
+
 function render() {
   const app = document.getElementById('app');
   const now = new Date();
@@ -482,7 +595,8 @@ function render() {
     return;
   }
 
-  const day = schedule[dayIndex];
+  const remote = isRemoteMode();
+  const day = remote ? remoteSchedule[dayIndex] : schedule[dayIndex];
   const seed = now.getFullYear() * 1000 + now.getMonth() * 31 + now.getDate();
   const greeting = greetings[seed % greetings.length];
   const player = players[dayIndex % players.length];
@@ -490,18 +604,38 @@ function render() {
   const equipmentSet = new Set();
   day.lessons.forEach(l => { if (l.equipment) equipmentSet.add(l.equipment); });
 
-  const lessonsHTML = day.lessons.map((l, i) => `
-    <div class="lesson" data-i="${i}">
-      <div class="lesson-num">${i + 1}</div>
-      <div class="lesson-info">
-        <div class="lesson-subject">${l.subject}</div>
-        <div class="lesson-time">${l.time}</div>
-      </div>
-    </div>
-  `).join('');
+  const lessonsHTML = day.lessons.map((l, i) => {
+    if (remote) {
+      const typeBadge = l.type === 'zoom'
+        ? '<span class="lesson-type-badge zoom">📹 זום</span>'
+        : '<span class="lesson-type-badge async">📝 משימה</span>';
+      const zoomLink = l.link
+        ? `<a href="${l.link}" target="_blank" class="lesson-zoom-link">🔗 היכנס לשיעור</a>`
+        : '';
+      const noteEl = l.note ? `<div class="lesson-note">${l.note}</div>` : '';
+      return `
+        <div class="lesson" data-i="${i}">
+          <div class="lesson-num">${i + 1}</div>
+          <div class="lesson-info">
+            <div class="lesson-subject">${typeBadge} ${l.subject}</div>
+            <div class="lesson-time">${l.time}</div>
+            ${noteEl}
+            ${zoomLink}
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="lesson" data-i="${i}">
+        <div class="lesson-num">${i + 1}</div>
+        <div class="lesson-info">
+          <div class="lesson-subject">${l.subject}</div>
+          <div class="lesson-time">${l.time}</div>
+        </div>
+      </div>`;
+  }).join('');
 
   let equipHTML = '';
-  if (equipmentSet.size > 0) {
+  if (equipmentSet.size > 0 && !remote) {
     equipHTML = `<div class="equipment-section">
       <div class="equipment-title">🎒 מה לקחת היום:</div>
       ${[...equipmentSet].map(e => `<div class="equipment-item">✅ ${e}</div>`).join('')}
@@ -541,6 +675,14 @@ function render() {
     </div>
 
     ${gameHTML}
+
+    <div class="remote-toggle">
+      <span class="remote-toggle-label ${!remote ? 'active' : ''}">🏫 רגיל</span>
+      <button class="remote-switch ${remote ? 'on' : ''}" onclick="toggleRemoteMode()"></button>
+      <span class="remote-toggle-label ${remote ? 'active' : ''}">🏠 מרחוק</span>
+    </div>
+
+    ${remote ? '<div class="remote-banner"><div class="remote-banner-text">⚠️ למידה מרחוק — לחץ על הלינק כדי להיכנס לשיעור</div></div>' : ''}
 
     <div class="schedule-card" style="--player-bg: url(${player.img})">
       <div class="schedule-title">📋 מערכת השעות</div>
