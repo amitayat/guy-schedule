@@ -632,6 +632,23 @@ const afternoonActivities = {
   ],
 };
 
+// Date-specific afternoon activities (override + extend per date).
+// Use for one-time scheduled lessons with concrete times.
+const datedAfternoonActivities = {
+  '2026-06-01': [
+    { id: 'novakid-2026-06-01', icon: '🎓', label: 'שיעור Novakid — 17:30-18:00 (Abby K)' },
+  ],
+  '2026-06-05': [
+    { id: 'novakid-2026-06-05', icon: '🎓', label: 'שיעור Novakid — 17:00-17:30 (Abby K)' },
+  ],
+  '2026-06-08': [
+    { id: 'novakid-2026-06-08', icon: '🎓', label: 'שיעור Novakid — 14:00-14:30 (Abby K)' },
+  ],
+  '2026-06-12': [
+    { id: 'novakid-2026-06-12', icon: '🎓', label: 'שיעור Novakid — 17:00-17:30 (Abby K)' },
+  ],
+};
+
 function todayStr() { return new Date().toISOString().slice(0, 10); }
 
 function getAftDoneAll() {
@@ -716,8 +733,13 @@ window.toggleMode = function() {
 };
 
 function renderAfternoonCard(dayIndex, player) {
-  const activities = afternoonActivities[dayIndex] || [];
-  const done = getAftDoneFor(todayStr());
+  const today = todayStr();
+  const dated = datedAfternoonActivities[today] || [];
+  const hasDatedNovakid = dated.some(a => a.id.startsWith('novakid-'));
+  const base = (afternoonActivities[dayIndex] || [])
+    .filter(a => !(hasDatedNovakid && a.id === 'novakid'));
+  const activities = [...base, ...dated];
+  const done = getAftDoneFor(today);
 
   if (activities.length === 0) {
     return `<div class="aft-card" style="--player-bg: url(${player.img})">
